@@ -1,0 +1,223 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+        display: none;
+        // box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+        // background-color: #f5f5f5;
+        // border-radius: 5px;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        border-radius: 5px;
+    }
+
+    // &::-webkit-scrollbar-thumb {
+    //     background: #0073fa;
+    //     border-radius: 5px;
+    // }
+}
+
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat+Condensed');
+html, body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+#app {
+    font-family: 'Montserrat', sans-serif;
+}
+
+// @font-face {
+//     font-family: 'MyFont';
+//     src: url('@/assets/fonts/calmiussans-low.ttf') format('truetype');
+//     font-weight: 700;
+//     font-style: normal;
+// }
+// body {
+//     font-family: 'MyFont', sans-serif;
+// }
+
+body {
+    min-height: 100vh;
+    transition: color 0.5s, background-color 0.5s;
+    line-height: 1.6;
+    font-size: 15px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.login{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    background-color:var(--color-background-mute) ;
+    &-box{
+        min-width: 420px;
+    }
+}
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px;
+    &-item{
+        display:flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+        &-icon{
+            background: red;
+        }     
+    }
+}
+.navbar{
+    &-header{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding:12px;
+        // padding-left: 20px;
+        transition: padding-left 0.5;
+        h1{
+            font-weight: bolder;
+        }
+        &_active{
+            padding: 8px;
+            padding-left: 32px;
+        }
+    }
+}
+.user{
+    display: flex;
+    gap: 8px;
+}
+.template{
+    &-box{
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 20px;
+        gap: 20px;
+        &_item{
+            flex: 1 0 250px;
+            border-radius: 7px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+.setting{
+    &-item{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    &-menu{
+        display: flex;
+        justify-content: space-between;
+    }
+}
+.router-save{
+    padding: 4px 6px;
+}
+.container .content .n-tabs-rail{
+    width: 20%;
+    background: inherit !important;
+}
+.wrapper .n-tabs-rail{
+    width: 45% !important;
+    background: inherit !important;
+    font-weight: 700 !important;
+    // border: 1px solid #0073fa;
+}
+.n-form-item-feedback-wrapper{
+    min-height: 15px !important;
+}
+.boxses .info .n-form-item-feedback-wrapper{
+    min-height: 0px !important;
+}
+.n-form-item-label__text{
+    font-size: 15px !important;
+}
+
+.n-data-table-td.n-data-table-td--last-col{
+    display: flex !important;
+    gap: 10px !important;
+}
+.n-menu-item-content{
+    padding-left: 20px !important;
+}
+.wrapper .n-tabs-tab{
+    background-color: #5CB553 !important;
+    color: #ffffff !important;
+}
+.wrapper .n-tabs-tab--active {
+    background-color: #0073fa !important;
+}
+.case .n-tabs-tab{
+    background-color: #5CB553 !important;
+    color: #ffffff !important;
+}
+.case .n-tabs-tab--active {
+    background-color: #0073fa !important;
+}
+.wrapper .wrapper_bottom n-input{
+    border: 1px solid #0073fa;
+}
+.bord .n-tabs-tab{
+    background-color: #5CB553 !important;
+    color: #ffffff !important;
+}
+.bord .n-tabs-tab--active {
+    background-color: #0073fa !important;
+}
+.n-input.n-input--disabled .n-input__input-el, .n-input.n-input--disabled .n-input__textarea-el{
+    color: #000000 !important;
+}
+.n-base-selection.n-base-selection--disabled .n-base-selection-label .n-base-selection-label__render-label{
+    color: #000000 !important;
+}
+.kontakt{
+    .n-data-table .n-data-table-th{
+        background-color: #00007D !important;
+    }
+    .n-data-table .n-data-table-tr{
+        background-color: #ffffff !important;
+    }
+}
+.birthday, .texnik{
+    .n-data-table .n-data-table-thead .n-data-table-th{
+        background-color: #00007D !important;
+    }
+    .n-data-table .n-data-table-tr{
+        background-color: #ffffff !important;
+    }
+}
+.n-collapse .n-collapse-item .n-collapse-item__header .n-collapse-item__header-main{
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+.box .content .n-tabs-rail{
+    width: 40%;
+}
+.wrapper .wrapper_foot .wrapper_foot_card{
+    .n-data-table .n-data-table-thead .n-data-table-th{
+        background-color: #00007D !important;
+    }
+    .n-data-table .n-data-table-tr{
+        background-color: #ffffff !important;
+    }
+}
