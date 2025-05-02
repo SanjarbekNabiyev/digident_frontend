@@ -86,8 +86,8 @@ const bemor = ref({
     full_name: null,
     phone_number: null,
     birthday: formatBirthday(Math.floor(new Date().getTime() / 1000)),
-    viloyat_id: 5,
-    tuman_id: null,
+    viloyat_id: 2,
+    tuman_id: 16,
     gender: 'erkak',
     pasport: null,
     imtiyoz: null,
@@ -104,15 +104,15 @@ const rules = {
             }
         }
     },
-    // phone_number: {
-    //     required: true,
-    //     trigger: 'blur',
-    //     validator: (rule, value) => {
-    //         if (value == null || value == '') {
-    //             return new Error(t('bemor_phone_midd'))
-    //         }
-    //     }
-    // }
+    phone_number: {
+        required: true,
+        trigger: 'blur',
+        validator: (rule, value) => {
+            if (value == null || value == '') {
+                return new Error(t('bemor_phone_midd'))
+            }
+        }
+    }
 }
 
 const viloyatList = ref([])

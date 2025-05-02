@@ -3,42 +3,26 @@
         <div class="header_top">
             <n-button type="info" @click="saveRegistration" size="large" :disabled="showBtn" :loading="loading">
                 <span style="font-size: 18px; font-weight: 500;">{{ $t('save_close') }}</span></n-button>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- <div style="display: flex; align-items: center; gap: 10px;">
                 <n-checkbox v-model:checked="data.finished" size="large">{{ $t('finished') }}</n-checkbox>
-            </div>
+            </div> -->
             <div class="exit">
                 <n-icon size="45" color="red" @click="exit"><CloseSquareFilled/></n-icon>
             </div>
         </div>
         <n-spin :show="show">
             <div class="content" v-if="!route.query.id">
-                <RegistrationPage v-if="!show" @bemorEmit="bemor" :data="data" @shifokorEmit="shifokor" @tekshiruvEmit="tekshiruv" @tekImageEmit="tekImage" @updateTekSummaEmit="updateTekSumma" @updateShifokorTimeEmit="updateShifokorTime" @texnikEmit="texnik" @payEmit="pay" @chekEmit="printChek"/>
+                <RegistrationPage v-if="!show" @bemorEmit="bemor" :data="data" @shifokorEmit="shifokor"
+                    @tekshiruvEmit="tekshiruv" @tekImageEmit="tekImage" @updateTekSummaEmit="updateTekSumma"
+                    @texnikEmit="texnik" @payEmit="pay" @chekEmit="printChek" />
             </div>
             <div class="content" v-else>
-                <RegistrationPage v-if="!show" @bemorEmit="bemor" :data="data" @shifokorEmit="shifokor" @tekshiruvEmit="tekshiruv" @tekImageEmit="tekImage" @updateTekSummaEmit="updateTekSumma" @updateShifokorTimeEmit="updateShifokorTime" @texnikEmit="texnik" @payEmit="pay" @chekEmit="printChek"/>
-                <!-- <n-tabs type="segment" animated @before-leave="handleBeforeLeave" default-value="Регистрация">
-                    <n-tab-pane name="Регистрация" :tab="t('registration')" >
-                    </n-tab-pane>
-                    <n-tab-pane name="Бемор тарихи" :tab="t('patient_history')">
-                        <BemorTarixi v-if="!show" :data="data.bemor"/>
-                    </n-tab-pane>
-                </n-tabs> -->
+                <RegistrationPage v-if="!show" @bemorEmit="bemor" :data="data" @shifokorEmit="shifokor"
+                    @tekshiruvEmit="tekshiruv" @tekImageEmit="tekImage" @updateTekSummaEmit="updateTekSumma"
+                    @texnikEmit="texnik" @payEmit="pay" @chekEmit="printChek" />
             </div>
         </n-spin>
     </div>
-
-    <n-modal 
-        v-model:show="addedModal" 
-        class="custom-card" 
-        preset="card" 
-        :title="t('comment')"
-        style="width: 500px; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);"
-    >
-        <div>
-            <n-input v-model:value="data.comment" type="textarea" :placeholder="t('comment')" style="margin-bottom: 10px;"/>
-            <n-button type="primary" @click="saveComment" size="large" style="width: 100%;">{{ $t('save_btn') }}</n-button>
-        </div>
-    </n-modal>
 </template>
 
 <script setup>
@@ -61,7 +45,6 @@ const message = useMessage()
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false);
-const addedModal = ref(false)
 
 const data = ref({
     updated_at: null,
@@ -75,7 +58,9 @@ const data = ref({
     paySum: 0,
     qarzSum: 0,
     color: null,
-    comment: null
+    comment: null,
+    inspection_category_id: 1,
+    inspection_time: '30 минут',
 })
 
 // ---------------------------------------------------------------------------------------------------- //
@@ -118,16 +103,14 @@ const  tekImage = (datas) => {
     }
 }
 
-const updateShifokorTime = (datas) => {
-    data.value.updated_at = datas.time / 1000
-    data.value.doctor_inspections[datas.index].child[0].inspection_time = datas.time / 1000
-}
-const updateTekSumma = (datas) => {    
-    if(datas.summa) {
+const updateTekSumma = (datas) => {
+    if (datas.summa) {
         data.value.registration_inspections[datas.index].inspection_summa = (datas.summa)
-        data.value.registration_inspections[datas.index].summa = (datas.summa)        
+        data.value.registration_inspections[datas.index].summa = (datas.summa)
+        data.value.registration_inspections[datas.index].backlog_summa = (datas.summa)
     }
 }
+
 const pay = (e) => {
     if(e) data.value.registration_pays.push(e)
 }
@@ -200,17 +183,13 @@ const calculateSums = () => {
     });
 };
 
-const saveData = async (isRegistration = false) => {
-    if (!isRegistration || data.value.bemor) {
+const saveData = async () => {
+    if (data.value.bemor) {
         loading.value = true;
         calculateSums();
 
         let method;
         if (route.query.id) {
-            if (isRegistration) {
-                addedModal.value = true;
-                return;
-            }
             method = axios.patch('/registration/update/' + route.query.id, data.value);
         } else {
             method = axios.post('/registration/create', data.value);
@@ -244,7 +223,6 @@ const saveData = async (isRegistration = false) => {
 };
 
 // Yangi funksiyalarni chaqirish
-const saveComment = () => saveData(false);
 const saveRegistration = () => saveData(true);
 
 
@@ -300,7 +278,7 @@ onMounted(() => {
 
 <style scoped>
 .container{
-    background-color: #D3E4E7;
+    background-color: #ffffffc2;
     width: 100vw;
     min-height: 100vh;
 }
@@ -308,7 +286,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #F0F0F0;
+    background-color: #ffffff;
     padding: 10px;
     border-bottom: 1px solid #007BFF;
 }

@@ -134,17 +134,16 @@ const themeOverrides = {
     siderColor: '#00009D',
   },
   Button: {
-    colorSecondary: '#007BFF',
-    colorSecondaryHover: '#064d99',
-    colorSecondaryPressed: '#007BFF',
-    // textColor: '#fff',
+    // colorSecondary: '#007BFF',
+    // colorSecondaryHover: '#064d99',
+    // colorSecondaryPressed: '#007BFF',
   },
   Input: {
     borderHover: "1px solid #007BFF",
     borderFocus: "1px solid #007BFF",
   },
   DataTable: {
-    thColor: '#00009D',
+    thColor: '#9aa2aa',
     thTextColor: '#fff',
   },
   Tabs: {

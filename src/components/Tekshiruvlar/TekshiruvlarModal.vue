@@ -66,8 +66,7 @@
                     <div class="content">
                         <div class="content_item" v-for="(it, inx) in item.inspections" :key="inx">
                             <div style="display: flex; align-items: center; gap: 5px;">
-                                <n-checkbox v-model:checked="it.check" id="check" @update:checked="(e) => chooseTekshiruv(it, e)"
-                                    :disabled="doctorId ? false : true">
+                                <n-checkbox v-model:checked="it.check" id="check" @update:checked="(e) => chooseTekshiruv(it, e)" :disabled="doctorId ? false : true">
                                     <label for="check">{{ it.name }}</label>
                                 </n-checkbox>
                             </div>
@@ -108,6 +107,39 @@ const bemor_id = ref(null)
 const tekshiruvList = ref([])
 const inspectionList = ref([])
 const teethArray = ref([])
+const doctorId = ref(null)
+const doctorName = ref(null)
+const doctorFoiz = ref(0)
+const doctorArray = ref([])
+const getLocalStorageDoctors = () => {
+    let data = JSON.parse(localStorage.getItem('doctor'))
+    if (data) {  
+        doctorArray.value = data
+        doctorId.value = doctorArray.value[doctorArray.value.length - 1].id;
+        doctorName.value = doctorArray.value[doctorArray.value.length - 1].full_name;
+        doctorFoiz.value = doctorArray.value[doctorArray.value.length - 1].foiz;
+    } else {
+        console.log('doctor');
+        axios.get('/user/shifokor/' + Number(localStorage.getItem('filial_id')))
+            .then(function (res) {
+                if (res.data.length > 0){
+                    let data = res.data
+                    for (let index = 0; index < data.length; index++) {
+                        if(data[index].id == Number(localStorage.getItem('user_id'))){
+                            doctorArray.value = res.data
+                            doctorId.value = data[index].id;
+                            doctorName.value = data[index].full_name;
+                            doctorFoiz.value = data[index].foiz;
+                        }
+                    }
+                }
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            })
+    }
+}
+
 const chooseTooth = (e, item) => {
     if (props.bemor_id || bemor_id.value) {
         if (e == true) {
@@ -190,10 +222,14 @@ const chooseTekshiruv = (item, value) => {
                 bemor_id: props.bemor_id,
                 teeth_id: model[i].teeth_id,
                 inspection_id: item.id,
+                key: Math.floor(new Date().getTime() / 1000),
                 name: model[i].name,
                 number: model[i].number,
                 inspection_name: item.name,
-                inspection_summa: item.summa,
+                inspection_summa: Number(item.summa),
+                pay_summa: 0,
+                skidka_summa: 0,
+                backlog_summa: Number(item.summa),
                 foiz: doctorFoiz.value,
                 inspection_type: item.type,
                 texnik_summa: null,
@@ -235,36 +271,6 @@ const getOneRegistration = () => {
             .then(function (res) {
                 bemor_id.value = res.data.bemor_id
                 inspectionList.value = res.data.registration_inspections
-            })
-            .catch(function (error) {
-                console.log(error.message);
-            })
-    }
-}
-const doctorId = ref(null)
-const doctorName = ref(null)
-const doctorFoiz = ref(0)
-const doctorArray = ref([])
-const getLocalStorageDoctors = () => {
-    if (localStorage.getItem('doctor')) {
-        doctorArray.value = JSON.parse(localStorage.getItem('doctor'))
-        doctorId.value = doctorArray.value[doctorArray.value.length - 1].id;
-        doctorName.value = doctorArray.value[doctorArray.value.length - 1].full_name;
-        doctorFoiz.value = doctorArray.value[doctorArray.value.length - 1].foiz;
-    } else {
-        axios.get('/user/shifokor')
-            .then(function (res) {
-                if (res.data.length > 0){
-                    let data = res.data
-                    for (let index = 0; index < data.length; index++) {
-                        if(data[index].id == Number(localStorage.getItem('user_id'))){
-                            doctorArray.value = res.data
-                            doctorId.value = data[index].id;
-                            doctorName.value = data[index].full_name;
-                            doctorFoiz.value = data[index].foiz;
-                        }
-                    }
-                }
             })
             .catch(function (error) {
                 console.log(error.message);
@@ -318,7 +324,7 @@ onMounted(() => {
                         flex-direction: column;
                         justify-content: center;
                         align-items: center;
-                        background-color: #F4F6FD;
+                        background-color: #ffffff;
                         transition: all .1s ease-in;
                         padding: 5px 0 3px;
                         cursor: pointer;
@@ -360,7 +366,7 @@ onMounted(() => {
                 justify-content: space-between;
                 align-items: center;
                 gap: 10px;
-                background-color: #E8EFF4;
+                background-color: #ffffff;
                 border: 1px solid #0064CF;
                 border-radius: 5px;
                 padding: 5px;

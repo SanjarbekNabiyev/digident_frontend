@@ -92,6 +92,7 @@ const eng = {
     "delete_btn": "Delete",
     "confir_btn": "Confirmation",
     "template_btn": "Template",
+    "qora_list": "Blacklist",
 
     // Data table variables
     "data": 'Date',
@@ -233,6 +234,21 @@ const eng = {
     "update_image": "Change image",
     "upload_image": "Click to upload image",
     "impossible": "Impossible!",
+    "print": "Print",
+    "get_product": "Products obtained",
+    "give_product": "Products given",
+    "oluvchi": "Recipient",
+    "beruvchi": "Supplier",
+    "maxsulot_olish": "Get product",
+    "maxsulot_berish": "Give product",
+    "comment_whrite": "Comment",
+    "analitic": "Analytics",
+    "labaratory": "Laboratory",
+    "maxsulot_aylanma": "Product production",
+    "selected_teeth": "Selected teeth",
+    "xona_band": "This room is occupied.",
+    "confir_btn": "Confirm",
+    "inspection_time": "Inspection time",
 };
 
 export { eng };

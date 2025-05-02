@@ -92,6 +92,7 @@ const ru = {
     "delete_btn": "Удалить",
     "confir_btn": "Подтверждение",
     "template_btn": "Шаблон",
+    "qora_list": "Черный список",
 
     // Data table variables
     "data": 'Время',
@@ -233,6 +234,21 @@ const ru = {
     "update_image": "Изменить картинку",
     "upload_image": "Нажмите, чтобы загрузить изображение",
     "impossible": "Невозможный!",
+    "print": "Печать",
+    "get_product": "Полученные продукты",
+    "give_product": "Доставленные продукты",
+    "oluvchi": "Получатель",
+    "beruvchi": "Поставщик",
+    "maxsulot_olish": "Получить продукт",
+    "maxsulot_berish": "Производство продукта",
+    "comment_whrite": "Комментарии",
+    "analitic": "Аналитика",
+    "labaratory": "Лаборатория",
+    "maxsulot_aylanma": "Производство продукта",
+    "selected_teeth": "Выбранные зубы",
+    "xona_band": "В настоящее время комната занята.",
+    "confir_btn": "Подтвердить",
+    "inspection_time": "Длительность инспекции",
 };
 
 export { ru };

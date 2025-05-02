@@ -34,30 +34,40 @@
                         />
                     </n-form-item>
                 </n-gi>
-                <n-gi style="width: 25%">
+                <n-gi style="width: 30%">
                     <n-form-item :label="t('xodim_fio')">
                         <n-input v-model:value="xodim" type="text" :placeholder="t('xodim_fio')" readonly size="large"/>
                     </n-form-item>
                 </n-gi>
                 <n-gi style="width: 15%">
                     <n-form>
-                        <n-form-item :label="t('filial')">
+                        <n-form-item :label="t('tek')">
                             <n-select
-                                disabled
-                                v-model:value="filialId" 
-                                :options="filialList" 
+                                :onUpdate:value="changeInspectionCategory" 
+                                v-model:value="props.bemordata.inspection_category_id" 
+                                :options="isnpectionCategoryList" 
                                 value-field="id" 
                                 label-field="name"  
-                                :placeholder="t('filial')" 
+                                :placeholder="t('tek_bolim')" 
                                 filterable 
                                 size="large"
                             />
                         </n-form-item>
                     </n-form>
                 </n-gi>
-                <n-gi style="width: 200px">
-                    <n-form-item :label="t('total_price')">
-                        <n-input-number :value="allSumma" :status="allSumma != 0 ? `error` : `info`" type="text" placeholder="0.00" readonly :show-button="false" :parse="useParsenumber" :format="useFormatnumber" size="large"/>
+                <n-gi style="width: 15%">
+                    <n-form-item :label="t('inspection_time')">
+                        <n-select
+                            :onUpdate:value="changeInspectionTime" 
+                            v-model:value="props.bemordata.inspection_time" 
+                            :options="inpectionTimeList" 
+                            value-field="id" 
+                            label-field="name"  
+                            :placeholder="t('inspection_time')" 
+                            filterable 
+                            size="large"
+                        />
+                        <!-- <n-input-number :value="allSumma" :status="allSumma != 0 ? `error` : `info`" type="text" placeholder="0.00" readonly :show-button="false" :parse="useParsenumber" :format="useFormatnumber" size="large"/> -->
                     </n-form-item>
                 </n-gi>
             </n-grid>
@@ -179,13 +189,52 @@ const bemor = ref({
     full_name: null,
     phone_number: null,
     birthday: formatBirthday(Math.floor(new Date().getTime() / 1000)),
-    viloyat_id: 12,
-    tuman_id: 158,
+    viloyat_id: 2,
+    tuman_id: 16,
     gender: 'erkak',
     pasport: null,
     imtiyoz: null,
     image_name: null,
 })
+
+const inpectionTimeList = ref([
+    {
+        id: '30 минут',
+        name: '30 минут',
+    },
+    {
+        id: '45 минут',
+        name: '45 минут',
+    },
+    {
+        id: '1 соат',
+        name: '1 соат',
+    },
+    {
+        id: '1.5 соат',
+        name: '1.5 соат',
+    },
+    {
+        id: '2 соат',
+        name: '2 соат',
+    },
+    {
+        id: '2.5 соат',
+        name: '2.5 соат',
+    },
+    {
+        id: '3 соат',
+        name: '3 соат',
+    }
+])
+
+const changeInspectionCategory = (e) => {
+    props.bemordata.inspection_category_id = e
+}
+const changeInspectionTime = (e) => {
+    props.bemordata.inspection_time = e
+}
+
 const bemorShow = ref(route.query.id ? false : true);
 const bemorImage = (e) => {
     bemor.value.image_name = e
@@ -205,8 +254,8 @@ const emptyPage = () => {
     bemor.value.full_name = null
     bemor.value.phone_number = null
     bemor.value.birthday = null
-    bemor.value.viloyat_id = 12
-    bemor.value.tuman_id = 158
+    bemor.value.viloyat_id = 2
+    bemor.value.tuman_id = 16
     bemor.value.gender = 'erkak',
     bemor.value.pasport = null
     bemor.value.imtiyoz = null
@@ -249,7 +298,7 @@ const imtiyozList = [
 ]
 
 const bemorList = ref([])
-const filialList = ref([])
+const isnpectionCategoryList = ref([])
 // Get all bemor api
 const getBemor = () => {
   axios.get('/bemor/all')
@@ -261,10 +310,10 @@ const getBemor = () => {
   })
 }
 // Get all filial api
-const getFilial = () => {
-    axios.get('/filial/all')
+const getInspectionCategory = () => {
+    axios.get('/inspection_category/all')
     .then(function (res) {
-        filialList.value = res.data
+        isnpectionCategoryList.value = res.data
     })
     .catch(function (error) {
         console.log(error.message);
@@ -419,7 +468,7 @@ if(route.query.id){
 onMounted(() => {
     getViloyatlar()
     getBemor()
-    getFilial()
+    getInspectionCategory()
 })
 
 const visibleRef = ref(false)
@@ -451,13 +500,13 @@ const onHide = () => (visibleRef.value = false)
     justify-content: space-between;
 }
 .head{
-    background-color: #F0F0F0;
+    background-color: #ffffff;
     border: 1px solid #007BFF;
     border-radius: 5px;
     padding: 8px 10px 0;
 }
 .contents{
-    background-color: #F0F0F0;
+    background-color: #ffffff;
     border: 1px solid #007BFF;
     border-radius: 5px;
     padding: 15px;

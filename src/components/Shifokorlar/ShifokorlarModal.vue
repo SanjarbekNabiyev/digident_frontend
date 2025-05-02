@@ -5,7 +5,7 @@
                 <template #trigger>
                     <div class="card">
                         <div class="card_item">
-                            <n-checkbox size="large" @update:checked="(e) => chooseDoctor(item, e)">
+                            <n-checkbox size="large" @update:checked="(e) => chooseDoctor(item, e)" v-model:checked="item.checked">
                                 <span class="doctor_name">{{ item.full_name }}</span>
                             </n-checkbox>
                         </div>
@@ -30,7 +30,7 @@
 
 <script setup>
 import axios from "axios";
-import { useMessage, useNotification } from 'naive-ui';
+import { useMessage, useNotification, useDialog } from 'naive-ui';
 import { ref, reactive, onMounted, defineEmits, watch, inject } from 'vue';
 import { useRouter, useRoute } from "vue-router";
 import { I18nD, useI18n } from "vue-i18n";
@@ -42,6 +42,7 @@ const dayJS = inject('dayJS');
 const emit = defineEmits(['shifokor']);
 const props = defineProps(['bemor_id', 'shifokorTekshiruvProps']);
 const message = useMessage();
+const dialog = useDialog();
 const notification = useNotification();
 const bemor_id = ref(null);
 const doctorArray = ref([]);
@@ -53,22 +54,39 @@ const selectedRoomId = ref(null)
 const chooseRoom = (value) => {
     let sendData = {
         doctor_id: doctorId.value,
-        inspection_time: Number(route.query.time) / 1000
+        inspection_time: Number(route.query.time) / 1000,
+        room_id: value
     }
     axios.post('/doctor_inspection/check-inspection-time', sendData)
         .then(function (res) {
-            if (res.data) {
-                notification.error({
-                    content: t('error'),
-                    meta: t('doctor_band'),
-                    duration: 2000,
-                    keepAliveOnHover: false
-                })
-            } else {
+            if (!res.success) {
+                shifokorList.value.forEach(shifokor => {
+                    shifokor.checked = false;
+                });
+
                 const room = roomList.value.find(r => r.id === value)
                 doctorSend.value.room_id = room.id
                 doctorSend.value.room_name = room.name
                 saveDoc()
+            }else {
+                dialog.warning({
+                    title: t('warning'),
+                    content: t('xona_band'),
+                    positiveText: t('add_btn'),
+                    negativeText: t('cencel_btn'),
+                    onPositiveClick: () => {
+                        shifokorList.value.forEach(shifokor => {
+                            shifokor.checked = false;
+                        });
+                        
+                        const room = roomList.value.find(r => r.id === value)
+                        doctorSend.value.room_id = room.id
+                        doctorSend.value.room_name = room.name
+                        saveDoc()
+                    },
+                    onNegativeClick: () => {
+                    }
+                })
             }
         })
         .catch(function (error) {
@@ -78,16 +96,13 @@ const chooseRoom = (value) => {
 
 const chooseDoctor = (item, value) => {
     if (value) {
+        selectedRoomId.value = null
         // Boshqa popoverlarni yopamiz
         shifokorList.value.forEach(doc => {
             if (doc.id !== item.id) doc.showPopover = false;
         });
 
-        if (value) {
-            // Joriy tanlangan shifokor uchun popoverni ochamiz
-            item.showPopover = value;
-            getBemor();
-        }
+        getRoom();
         if (props.bemor_id || bemor_id.value) {
             doctorId.value = item.id
             doctorSend.value = item;
@@ -146,6 +161,7 @@ const getAllShifokor = () => {
         .then(function (res) {
             shifokorList.value = res.data.map(item => ({
                 ...item,
+                checked: false,
                 showPopover: false  // Har bir shifokor uchun popover holati
             }));
         })
@@ -168,7 +184,7 @@ const getOneRegistration = () => {
 }
 
 // Get all room api
-const getBemor = () => {
+const getRoom = () => {
     axios.get('/room/all')
         .then(function (res) {
 
@@ -203,7 +219,7 @@ onMounted(() => {
                 justify-content: space-between;
                 align-items: center;
                 gap: 10px;
-                background-color: #E8EFF4;
+                background-color: #ffffff;
                 border: 1px solid #0064CF;
                 border-radius: 5px;
                 padding: 5px;

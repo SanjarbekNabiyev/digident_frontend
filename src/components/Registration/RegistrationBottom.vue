@@ -6,14 +6,12 @@
           <!-- <n-button type="info" size="large" style="width: 150px"
             @click="shifokorModalShow(), (showChange = 'Шифокор қабул вақтлари')">{{ $t('doctor') }}</n-button> -->
         </div>
-        <!-- v-if="props?.data?.doctor_inspections.find(el => el.name != null)" -->
         <div class="wrapper_item">
           <div class="wrapper_item_card">
             <ShifokorlarModalVue @shifokor="shifokorEmit" :bemor_id="props.bemor_id_prop"
               :shifokorTekshiruvProps="props?.data?.doctor_inspections" />
           </div>
           <div class="wrapper_item_card">
-            <!-- <span class="title">{{ $t('doctor_ins') }}</span> -->
             <n-tabs type="card" size="medium" animated v-if="props?.data?.doctor_inspections.find(el => el.name != null)">
               <n-tab-pane v-for="(item, index) in props?.data?.doctor_inspections" :key="index" :name="index + 1" :tab="item?.name">
                 <n-data-table :single-line="false" :columns="shifokorColumns" :data="item.child ? item.child : []" />
@@ -40,7 +38,7 @@
           <div class="wrapper_pay_item">
             <div class="table">
               <n-data-table :single-line="false" :columns="tolovColumns"
-                :data="props?.data?.registration_pays ? props?.data?.registration_pays : []" />
+                :data="props?.data?.registration_pays ? props?.data?.registration_pays : []" :min-height="280" :max-height="280"/>
             </div>
 
             <n-form
@@ -62,34 +60,11 @@
             </n-form>
           </div>
           <div class="wrapper_pay_button">
-            <div class="info">
-              <n-form style="display: flex; flex-direction: column; gap: 10px;">
-                <n-form-item :label="t('amount_pay')">
-                  <n-input-number v-model:value="payData.pay_summa" size="large" placeholder="0.00"
-                    :onUpdate:value="paySumma" :show-button="false" :parse="useParsenumber" :format="useFormatnumber"
-                    style="width: 100%;" />
-                </n-form-item>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                  <n-form-item :label="t('amount_kesh')">
-                    <n-input-number v-model:value="payData.skidka_summa" size="large" placeholder="0.00"
-                      :onUpdate:value="skidkaSumma" :show-button="false" :parse="useParsenumber"
-                      :format="useFormatnumber" style="width: 100%;" />
-                  </n-form-item>
-                  <n-form-item :label="t('amount_kesh') + ' ' + ('(%)')">
-                    <n-input-number v-model:value="payData.skidka_foiz" :show-button="false" style="width: 100%;"
-                      :onUpdate:value="skidkaFoiz" placeholder="" size="large">
-                      <template #suffix>%</template>
-                    </n-input-number>
-                  </n-form-item>
-                </div>
-                <n-form-item :label="t('amount_paytype')">
-                  <n-select v-model:value="payData.paytype" :options="paytypeList" value-field="name" label-field="name"
-                    :placeholder="t('amount_paytype')" size="large" />
-                </n-form-item>
-                <n-form-item :label="t('comment')">
-                  <n-input v-model:value="payData.izoh" size="large" placeholder="" />
-                </n-form-item>
-              </n-form>
+            <div class="table">
+              <n-data-table :single-line="false" :columns="ordersColumn" :key="dataRefreshKey"
+                :data="props?.data?.registration_inspections ? props?.data?.registration_inspections : []"
+                :row-class-name="rowClassNameColumn" :row-key="rowKey" @update:checked-row-keys="chooseBemor"
+                :min-height="280" :max-height="280" />
             </div>
             <div class="btn">
               <button class="print" @click="printChek()"><n-icon size="30">
@@ -101,7 +76,7 @@
               <!-- <button class="vazvrat"><n-icon size="30">
                   <ArrowReply16Filled />
                 </n-icon> <span>{{ $t('vozvrat') }}</span></button> -->
-              <button class="success" @click="paymeModalShow()"><n-icon size="30">
+              <button class="success" @click="openPaymeModalShow()"><n-icon size="30">
                   <Money16Regular />
                 </n-icon> <span>{{ $t('payment') }}</span></button>
             </div>
@@ -177,12 +152,50 @@
     </div>
   </n-modal>
   <!-- Update Tekshiruv summa -->
+
+  <n-modal v-model:show="confirmPayModal" class="custom-card" preset="card" style="width: 80%; background-color: #fff;"
+    :title="t('payment')" :max-height="750">
+    <div class="orders">
+      <div class="table">
+        <n-data-table :single-line="false" :columns="ordersTable" :data="orderList" :min-height="280" :max-height="320"/>
+      </div>
+      <div class="info">
+        <n-form style="display: flex; flex-direction: column; gap: 10px;">
+          <n-form-item :label="t('amount_pay')">
+            <n-input-number v-model:value="payData.pay_summa" size="large" placeholder="0.00" :onUpdate:value="paySumma"
+              :show-button="false" :parse="useParsenumber" :format="useFormatnumber" style="width: 100%;"
+              :disabled="orderList.length !== 1" />
+          </n-form-item>
+          <div style="display: flex; align-items: center; gap: 5px;">
+            <n-form-item :label="t('amount_kesh')">
+              <n-input-number v-model:value="payData.skidka_summa" size="large" placeholder="0.00"
+                @update:value="skidkaSumma" :show-button="false" :parse="useParsenumber" :format="useFormatnumber"
+                style="width: 100%;" :disabled="orderList.length !== 1" />
+            </n-form-item>
+            <n-form-item :label="t('amount_kesh') + ' ' + ('(%)')">
+              <n-input-number v-model:value="payData.skidka_foiz" :show-button="false" style="width: 100%;"
+                @update:value="skidkaFoiz" placeholder="" size="large" :disabled="orderList.length !== 1">
+                <template #suffix>%</template>
+              </n-input-number>
+            </n-form-item>
+          </div>
+          <n-form-item :label="t('amount_paytype')">
+            <n-select v-model:value="payData.paytype" :options="paytypeList" value-field="name" label-field="name"
+              :placeholder="t('amount_paytype')" size="large" />
+          </n-form-item>
+          <button class="success" @click="paymeModalShow()"><n-icon size="30">
+              <Money16Regular />
+            </n-icon> <span>{{ $t('confir_btn') }}</span></button>
+        </n-form>
+      </div>
+    </div>
+  </n-modal>
 </template>
 
 <script setup>
 import axios from 'axios';
 import { useEventBus } from '../../emitter'
-import { h, ref, onMounted, defineEmits, watch, inject } from 'vue'
+import { h, ref, onMounted, defineEmits, watch, inject, computed } from 'vue'
 import { useRouter, useRoute } from "vue-router";
 import { useMessage, useNotification, NButton, NIcon, NText, useDialog, NImage, NInput, NSpace, NDatePicker } from 'naive-ui'
 import ShifokorlarModalVue from "../Shifokorlar/ShifokorlarModal.vue";
@@ -201,6 +214,7 @@ const { t, locale } = useI18n()
 const emit = defineEmits(['shifokor', 'tekshiruv', 'texnik', 'printChek', 'pay', 'tekImage', 'updateTekSumma', 'updateShifokorTime'])
 const props = defineProps(['bemor_id_prop', 'data'])
 const dayJS = inject('dayJS')
+const filialId = ref(Number(localStorage.getItem('user_filial')))
 const currentRole = ref(localStorage.getItem('role'));
 const dialog = useDialog()
 const message = useMessage()
@@ -219,7 +233,16 @@ const qarzdorlik = inject('summa')
 const eventBus = useEventBus()
 const tekshiruvIndex = ref(null)
 const texnikListIndex = ref(null)
-const tekShiruvDefaultValue = ref(currentRole.value == 'Shifokor' ? 'Текширувлар' : 'Навбат олиш')
+const dataRefreshKey = ref(0);
+const orderList = ref([])
+const confirmPayModal = ref(false)
+const tekShiruvDefaultValue = ref('Навбат олиш')
+// const tekShiruvDefaultValue = ref(currentRole.value == 'Shifokor' ? 'Текширувлар' : 'Навбат олиш')
+
+const refreshTable = () => {
+  dataRefreshKey.value++;
+};
+
 const tekSumma = ref({
   index: null,
   summa: null
@@ -506,7 +529,7 @@ const tolovColumns = [
   {
     title: t('data'),
     render(row) {
-      return dayJS(row.datetime * 1000).format('YYYY-MM-DD') + ' / ' + dayJS(row.datetime * 1000).format("HH:mm")
+      return dayJS(row.datetime * 1000).format('DD.MM') + ' / ' + dayJS(row.datetime * 1000).format("HH:mm")
     }
   },
   {
@@ -516,7 +539,7 @@ const tolovColumns = [
   {
     title: "",
     key: "actions",
-    width: 50,
+    width: 55,
     render(row, index) {
       return [
         h(
@@ -549,6 +572,86 @@ const tolovColumns = [
   }
 ]
 
+const ordersColumn = [
+  {
+    type: "selection",
+    disabled(row) {
+      return Number(row.backlog_summa) <= 0;
+    }
+  },
+  {
+    title: t('teeth_number'),
+    key: 'number',
+    width: 120
+  },
+  {
+    title: t('name'),
+    key: 'inspection_name'
+  },
+  {
+    title: t('total_pay'),
+    width: 150,
+    render(row) {
+      return useSummaFormat(row.pay_summa) || 0
+    }
+  },
+  {
+    title: t('total_keshback'),
+    width: 140,
+    render(row) {
+      return useSummaFormat(row.skidka_summa || 0)
+    }
+  },
+  {
+    title: t('total_debt'),
+    width: 140,
+    render(row) {
+      return useSummaFormat(row.backlog_summa || 0)
+    }
+  },
+]
+
+const ordersTable = [
+  {
+    title: "#",
+    key: "name",
+    width: 50,
+    render(row, index) {
+      return index + 1
+    }
+  },
+  {
+    title: t('teeth_number'),
+    key: 'number',
+    width: 120
+  },
+  {
+    title: t('name'),
+    key: 'inspection_name'
+  },
+  {
+    title: t('total_pay'),
+    width: 150,
+    render(row) {
+      return useSummaFormat(row.pay_summa || 0)
+    }
+  },
+  {
+    title: t('total_keshback'),
+    width: 140,
+    render(row) {
+      return useSummaFormat(row.skidka_summa || 0)
+    }
+  },
+  {
+    title: t('total_debt'),
+    width: 140,
+    render(row) {
+      return useSummaFormat(row.backlog_summa || 0)
+    }
+  },
+]
+
 const paytypeList = [
   {
     name: 'Нақд'
@@ -563,8 +666,11 @@ const paytypeList = [
 
 const updateTekSumma = () => {
   if(tekSumma.value.summa) {
-    emit('updateTekSumma', tekSumma.value)
-    updateTekSummaModal.value = false
+    emit('updateTekSumma', {
+      index: tekSumma.value.index,
+      summa: Number(tekSumma.value.summa)
+    });
+    updateTekSummaModal.value = false;
   }
 }
 
@@ -572,6 +678,18 @@ const bemorId = ref(null)
 eventBus.$on('bemorId', (id) => {
   bemorId.value = id
 })
+
+// Get all shifokor api
+const shifokorList = ref([])
+const getAllShifokor = () => {
+  axios.get('/user/shifokor/' + filialId.value)
+    .then(function (res) {
+      shifokorList.value = res.data
+    })
+    .catch(function (error) {
+      console.log(error.message);
+    })
+}
 
 const shifokorEmit = (data) => {
   if (data) {
@@ -606,6 +724,9 @@ const tekshiruvEmit = (data) => {
       number: data.number,
       inspection_name: data.inspection_name,
       summa: data.inspection_summa,
+      pay_summa: Number(data.pay_summa) || 0,
+      skidka_summa: Number(data.skidka_summa) || 0,
+      backlog_summa: Number(data.backlog_summa) || 0,
       foiz: data.foiz,
       inspection_summa: data.inspection_summa,
       inspection_id: data.inspection_id,
@@ -632,49 +753,130 @@ const payData = ref({
   skidka_foiz: 0,
   qarzdorlik_summa: 0,
   paytype: 'Нақд',
-  izoh: null
+  izoh: null,
+  number: 0
 })
 
+const rowKey = (row) => `${row.key}_${row.number}`;
+
+const chooseBemor = (e) => {
+  // Duplikatlarni olib tashlash
+  const selectedKeys = Array.from(new Set(e.map(item => item.split('_').join('_'))))
+    .map(item => {
+      const [key, number] = item.split('_');
+      return { key, number };
+    });
+
+  // Barcha tanlangan bemorlarni topish
+  orderList.value = props.data.registration_inspections
+  .filter(item => {
+    return selectedKeys.some(sel => 
+      Number(sel.key) == Number(item.key) && 
+      Number(sel.number) == Number(item.number) &&
+      Number(item.backlog_summa) > 0
+    );
+  })
+  .map(item => ({
+    ...item,
+    initial_backlog: Number(item.backlog_summa) || 0,
+    pay_summa: Number(item.backlog_summa) || 0,
+    skidka_summa: 0
+  }));
+
+  // Umumiy qarzdorlikni hisoblash
+  const totalSelectedDebt = orderList.value.reduce((sum, item) => 
+    sum + (Number(item.backlog_summa) || 0), 0
+  );
+
+  // To‘lov ma'lumotlarini yangilash
+  payData.value = {
+    ...payData.value,
+    pay_summa: totalSelectedDebt,
+    skidka_summa: 0,
+    skidka_foiz: 0
+  };
+
+  // Har bir buyurtmada to‘lov va chegirma qiymatlarini boshlang‘ichga tenglab chiqish
+  orderList.value.forEach(item => {
+    item.pay_summa = Number(item.backlog_summa) || 0;
+    item.skidka_summa = 0;
+  });
+};
+
 const skidkaSumma = (e) => {
-  payData.value.skidka_foiz = (e * 100) / totalQarz.value
-}
+  if (orderList.value.length === 1) {
+    const selected = orderList.value[0];
+    const initialPaySumma = selected.initial_backlog;
+    const newDiscount = Math.min(e, initialPaySumma);
+
+    selected.skidka_summa = newDiscount;
+    selected.pay_summa = initialPaySumma - newDiscount;
+    selected.backlog_summa = initialPaySumma - selected.pay_summa - selected.skidka_summa;
+
+    // Update percentage
+    payData.value.skidka_foiz = (newDiscount / initialPaySumma) * 100;
+
+    // Handle invalid inputs
+    if (newDiscount < 0) {
+      selected.skidka_summa = 0;
+      selected.pay_summa = initialPaySumma;
+      selected.backlog_summa = initialPaySumma - selected.pay_summa;
+      payData.value.skidka_foiz = 0;
+    }
+  }
+};
 
 const paySumma = (e) => {
-  if(e > totalQarz.value){
-    payData.value.pay_summa = totalQarz.value
-  }
-}
-const skidkaFoiz = (e) => {
-  payData.value.skidka_summa = (e * totalQarz.value) / 100
-}
+  if (orderList.value.length === 1) {
+    const selected = orderList.value[0];
+    const maxAllowed = selected.backlog_summa;
 
-const paymeModalShow = () => {
-  if (payData.value.pay_summa) {
+    // Ensure pay_summa doesn't exceed backlog
+    const newPay = Math.min(e, maxAllowed);
 
-    let el = payData.value.pay_summa + payData.value.skidka_summa
-    totalQarz.value -= el
-
-    let data = {
-      summa: payData.value.summa,
-      pay_summa: payData.value.pay_summa,
-      skidka_summa: payData.value.skidka_summa,
-      qarzdorlik_summa: totalQarz.value,
-      datetime: Math.floor(new Date().getTime() / 1000),
-      paytype: payData.value.paytype,
-      izoh: payData.value.izoh
+    // Update single row values
+    selected.pay_summa = newPay;
+    selected.skidka_summa = 0;
+    selected.backlog_summa = selected.inspection_summa - newPay - selected.skidka_summa;
+    if (newPay < 0) {
+      selected.pay_summa = 0;
+      selected.backlog_summa = selected.inspection_summa - selected.skidka_summa;
     }
-    emit('pay', data);
-    payData.value.pay_summa = 0;
-    payData.value.skidka_summa = 0;
-    payData.value.skidka_foiz = 0;
-    payData.value.izoh = null;
 
-    totalSum.value = 0
-    totalSkidka.value = 0
-    props.data?.registration_pays.forEach((item) => {
-      totalSum.value += Number(item.pay_summa);
-      totalSkidka.value += Number(item.skidka_summa);
-    })
+    payData.value.pay_summa = selected.pay_summa;
+  }
+};
+
+const skidkaFoiz = (e) => {
+  if (orderList.value.length === 1) {
+    const selected = orderList.value[0];
+    const initialPaySumma = selected.initial_backlog;
+    const maxPercentage = 100;
+    const validPercentage = Math.min(e, maxPercentage);
+
+    const newDiscount = (validPercentage / 100) * initialPaySumma;
+    selected.skidka_summa = newDiscount;
+    selected.pay_summa = initialPaySumma - newDiscount;
+    selected.backlog_summa = initialPaySumma - selected.pay_summa - selected.skidka_summa;
+
+    // Update payData
+    payData.value.skidka_summa = newDiscount;
+    payData.value.pay_summa = selected.pay_summa;
+    payData.value.skidka_foiz = validPercentage;
+
+    // Ensure non-negative values
+    if (newDiscount < 0) {
+      selected.skidka_summa = 0;
+      selected.pay_summa = initialPaySumma;
+      selected.backlog_summa = initialPaySumma - selected.pay_summa;
+      payData.value.skidka_foiz = 0;
+    }
+  }
+};
+
+const openPaymeModalShow = () => {
+  if (orderList.value.length > 0) {
+    confirmPayModal.value = true
   } else {
     notification.error({
       content: t('warning'),
@@ -685,11 +887,64 @@ const paymeModalShow = () => {
   }
 }
 
-// Get One Registration api
+const paymeModalShow = async () => {
+  try {
+    const paymentDate = Math.floor(Date.now() / 1000);
+    const newPayments = orderList.value.map(item => ({
+      pay_summa: Number(item.pay_summa),
+      skidka_summa: Number(item.skidka_summa),
+      paytype: payData.value.paytype,
+      datetime: paymentDate,
+      inspection_key: item.key,
+      inspection_id: item.inspection_id,
+      doctor_id: item.doctor_id,
+      foiz: item.foiz,
+      texnik_summa: item.texnik_summa,
+      teeth_number: item.number
+    }));
+
+    orderList.value.forEach(item => {
+      const inspection = props.data.registration_inspections.find(
+        insp => Number(insp.key) == Number(item.key)
+      );
+
+      if (inspection) {
+
+        inspection.pay_summa += Number(item.pay_summa);
+        inspection.skidka_summa += Number(item.skidka_summa);
+        inspection.backlog_summa = Number(inspection.inspection_summa)
+          - inspection.pay_summa
+          - inspection.skidka_summa;
+      }
+    });
+
+    props.data.registration_pays.push(...newPayments);
+
+
+    orderList.value = [];
+    confirmPayModal.value = false;
+    refreshTable();
+    calculateTotalQarz();
+
+  } catch (error) {
+    notification.error({
+      content: t('error'),
+      meta: error.message,
+      duration: 3000
+    });
+  }
+}
+
 const payList = ref([])
-const totalSum = ref(0)
-const totalSkidka = ref(0)
-const totalQarz = ref(0)
+const totalSum = computed(() =>
+  props.data?.registration_pays?.reduce((sum, pay) => sum + Number(pay.pay_summa), 0) || 0
+);
+const totalSkidka = computed(() =>
+  props.data?.registration_pays?.reduce((sum, pay) => sum + Number(pay.skidka_summa), 0) || 0
+);
+const totalQarz = computed(() =>
+  props.data?.registration_inspections?.reduce((sum, item) => sum + Number(item.backlog_summa), 0) || 0
+);
 
 if (route.query.id) {
   if (props.data) {
@@ -702,7 +957,6 @@ if (route.query.id) {
     }
   }
 }
-
 
 const deleteShifokor = (item, index) => {
   let data = {
@@ -717,12 +971,26 @@ const deleteTekshiruv = (item, index) => {
 }
 
 const deletePay = (item, index) => {
-  totalSum.value -= Number(item.pay_summa)
-  totalSkidka.value -= Number(item.skidka_summa)
-  totalQarz.value += (Number(item.pay_summa) + Number(item.skidka_summa))
+  const payment = props.data.registration_pays.splice(index, 1)[0];
+  
+  // ✅ Key bo'yicha qidirish
+  const inspection = props.data.registration_inspections.find(
+    insp => Number(insp.key) == Number(payment.inspection_key) && Number(insp.number) == Number(payment.teeth_number)
+  );
 
-  eventBus.$emit('deletePayIndex', index)
-}
+  if (inspection) {
+    const relatedPayments = props.data.registration_pays.filter(
+      p => Number(p.inspection_key) == Number(inspection.key) && Number(p.teeth_number) == Number(inspection.number)
+    );
+
+    inspection.pay_summa = relatedPayments.reduce((sum, p) => sum + Number(p.pay_summa), 0);
+    inspection.skidka_summa = relatedPayments.reduce((sum, p) => sum + Number(p.skidka_summa), 0);
+    inspection.backlog_summa = Math.max(Number(inspection.inspection_summa) - inspection.pay_summa - inspection.skidka_summa, 0);
+  }
+
+  refreshTable();
+  calculateTotalQarz();
+};
 
 const printChek = () => {
   if (props.data?.registration_pays.length > 0) {
@@ -743,13 +1011,19 @@ const printChek = () => {
   }
 }
 
+const calculateTotalQarz = () => {
+  totalQarz.value = props.data.registration_inspections.reduce(
+    (sum, item) => sum + Number(item.backlog_summa), 0
+  );
+};
+
 const printDoctorChek = () => {
   if (props.data?.doctor_inspections.length > 0) {
     props.data.totalSum = 0
     props.data.paySum = 0
     props.data.qarzSum = 0
-    for (let i = 0; i <props.data.doctor_inspections.length; i++) {
-      for (let j = 0; j <props.data.doctor_inspections[i].child.length; j++) {
+    for (let i = 0; i < props.data.doctor_inspections.length; i++) {
+      for (let j = 0; j < props.data.doctor_inspections[i].child.length; j++) {
         props.data.totalSum += Number(props.data.doctor_inspections[i].child[j].korik_summa);
         props.data.qarzSum += Number(props.data.doctor_inspections[i].child[j].korik_summa);
       }
@@ -762,11 +1036,10 @@ const printDoctorChek = () => {
       props.data.paySum += Number(item.pay_summa)
       props.data.paySum += Number(item.skidka_summa)
     })
-
+    // console.log(props.data)
     let method;
     if (route.query.id) {
       method = axios.patch('/registration/update/' + route.query.id, props.data)
-
     } else {
       method = axios.post('/registration/create', props.data)
     }
@@ -777,7 +1050,7 @@ const printDoctorChek = () => {
           path: "/doctor_chek_print"
         });
         window.open(rout.href, "_blank");
-        router.push({ name: 'Home' });
+        router.push({ name: 'Registration' });
       }
     }).catch(function (error) {
       notification.error({
@@ -796,15 +1069,13 @@ const printDoctorChek = () => {
     })
   }
 }
-const openTekPage = () => {
-  tekPage.value = true
-}
 
 const closeUploadModal = () => {
   uploadModal.value = false;
 }
- 
+
 onMounted(() => {
+  getAllShifokor()
 })
 
 watch(props.data?.doctor_inspections, (val) => {
@@ -815,12 +1086,33 @@ watch(props.data?.doctor_inspections, (val) => {
     }
   })
 })
-watch(props.data?.registration_inspections, (val) => {
-  totalQarz.value = 0
-  val.forEach((item) => {
-    totalQarz.value += Number(item.inspection_summa);
-  })
-})
+
+watch(() => props.data?.registration_inspections, (newInspections) => {
+  orderList.value = orderList.value.filter(item =>
+    newInspections.some(insp =>
+      Number(insp.key) == Number(item.key) && Number(insp.number) == Number(item.number) && Number(insp.backlog_summa) > 0
+    )
+  );
+}, { deep: true });
+
+watch(() => props.data?.registration_pays, () => {
+  if (!props.data?.registration_inspections) return;
+
+  props.data.registration_inspections.forEach(inspection => {
+    const relatedPayments = props.data.registration_pays?.filter(p =>
+      Number(p.inspection_key) == Number(inspection.key) && Number(p.teeth_number) == Number(inspection.number)
+    ) || [];
+
+    inspection.pay_summa = relatedPayments.reduce((sum, p) => sum + Number(p.pay_summa || 0), 0);
+    inspection.skidka_summa = relatedPayments.reduce((sum, p) => sum + Number(p.skidka_summa || 0), 0);
+    inspection.backlog_summa = Number(inspection.inspection_summa || 0)
+      - inspection.pay_summa
+      - inspection.skidka_summa;
+  });
+
+  calculateTotalQarz();
+}, { deep: true });
+
 
 const showBtn = ref(true)
 const handleBeforeLeave = (tabName) => {
@@ -847,13 +1139,40 @@ const onFinish = (options) => {
   emit('tekImage', datas)
 }
 
+
+// Update row class calculation
+const rowClassNameColumn = (row) => {
+  const isSelected = orderList.value.some(item => Number(item.key) === Number(row.key) && Number(row.number) == Number(item.number)); // ✅ Key bo'yicha tekshirish
+  const total = Number(row.inspection_summa) || 0;
+  const paid = Number(row.pay_summa) || 0;
+  const skidka = Number(row.skidka_summa) || 0;
+  const backlog = total - paid - skidka;
+
+  if (isSelected && backlog > 0) return "selected";
+  if (backlog == 0) return "success";
+  if (paid == 0 && skidka == 0) return "danger";
+  return "warning";
+};
+
+
 </script>
 
 <style scoped lang="scss">
+:deep(.n-input--disabled .n-input__input) {
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+}
+
+:deep(.selected td) {
+  background-color: #ffa500 !important;
+  color: #5c5c5c;
+  font-weight: 600;
+}
+
 .wrapper {
   position: relative;
   display: flex;
-  background-color: #F0F0F0;
+  background-color: #ffffff;
   border: 1px solid #007BFF;
   border-radius: 5px;
   padding: 10px 15px;
@@ -868,7 +1187,7 @@ const onFinish = (options) => {
     border-radius: 5px;
     border: 1px solid #007BFF;
     padding: 5px;
-    background-color: #F0F6FA;
+    background-color: #ffffff;
     overflow: auto;
     &_card {
       min-height: 350px;
@@ -887,7 +1206,7 @@ const onFinish = (options) => {
     border-radius: 5px;
     border: 1px solid #007BFF;
     padding: 5px;
-    background-color: #F0F6FA;
+    background-color: #ffffff;
     overflow: auto;
     &_card {
       min-height: 410px;
@@ -901,13 +1220,14 @@ const onFinish = (options) => {
 
   &_pay {
     display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
+    grid-template-columns: repeat(2, 1fr);
     width: inherit;
     border-radius: 5px;
     border: 1px solid #007BFF;
     padding: 5px;
     gap: 10px;
-    background-color: #F0F6FA;
+    background-color: #ffffff;
+
 
     &_item {
       border: 1px solid #007BFF;
@@ -915,26 +1235,24 @@ const onFinish = (options) => {
     }
 
     &_button {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 10px;
+      border: 1px solid #007BFF;
+      border-radius: 5px;
 
       .info {
         padding: 8px;
         border: 1px solid #007BFF;
         border-radius: 5px;
-        background-color: #F0F6FA;
+        background-color: #ffffff;
       }
 
       .btn {
         display: flex;
-        flex-direction: column;
         justify-content: space-between;
-        // gap: 5px;
+
         padding: 8px;
-        border: 1px solid #007BFF;
-        border-radius: 5px;
-        background-color: #F0F6FA;
+        border-top: 1px solid #007BFF;
+
+        background-color: #ffffff;
 
         button {
           display: flex;
@@ -984,37 +1302,6 @@ const onFinish = (options) => {
         }
       }
     }
-
-    .table {
-      min-height: 300px;
-      overflow-y: auto;
-    }
-
-    table,
-    tbody,
-    tr,
-    td {
-      border-bottom: 1px solid #007BFF;
-      border-collapse: collapse;
-      text-align: center;
-      padding: 1px 3px;
-    }
-
-    .delete {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid red;
-      border-radius: 5px;
-      width: 35px;
-      height: 35px;
-      cursor: pointer;
-
-      &:hover {
-        background-color: rgb(255, 178, 178);
-        color: #fff;
-      }
-    }
   }
 
   .printDoctor{
@@ -1023,6 +1310,12 @@ const onFinish = (options) => {
     top: 10px;
     right: 10px;
   }
+
+  .table {
+    min-height: 300px;
+    overflow-y: auto;
+  }
+
 
   table,
   th,
@@ -1080,5 +1373,74 @@ const onFinish = (options) => {
       border-bottom: none;
     }
   }
+}
+
+.orders {
+  display: grid;
+  grid-template-columns: 1.5fr 0.5fr;
+  gap: 10px;
+
+  .table {
+    min-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #007BFF;
+    border-radius: 5px;
+    background-color: #ffffff;
+  }
+
+  .info {
+    padding: 8px;
+    border: 1px solid #007BFF;
+    border-radius: 5px;
+    background-color: #F0F6FA;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-width: 25%;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      color: #fff;
+      padding: 25px;
+      border: 1px solid #fff;
+      cursor: pointer;
+
+      span {
+        font-size: 20px;
+        font-weight: 700;
+      }
+    }
+
+    .success {
+      background: #02b902;
+      box-shadow: 5px 8px 10px rgba(38, 176, 25, 0.4);
+
+
+      &:hover {
+        background-color: #50db50;
+      }
+    }
+  }
+}
+
+:deep(.danger td) {
+  color: #5c5c5c;
+  background-color: #F5C6CB !important;
+  font-weight: 600;
+}
+
+:deep(.success td) {
+  color: #5c5c5c;
+  background-color: #b8f7c6 !important;
+  font-weight: 600;
+}
+
+:deep(.warning td) {
+  color: #5c5c5c;
+  background-color: #f7d490 !important;
+  font-weight: 600;
 }
 </style>

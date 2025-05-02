@@ -75,7 +75,33 @@ const insList = ref([]);
 const counter = useCounterStore()
 const list = ref(null);
 insList.value = JSON.parse(localStorage.getItem('inspection_Chek'))
-chekList.value = JSON.parse(localStorage.getItem('chek'))
+// chekList.value = JSON.parse(localStorage.getItem('chek'))
+
+const calcSumma = () => {
+    const chek = JSON.parse(localStorage.getItem('chek')) || [];
+
+    const groupedData = {};
+
+    chek.forEach(item => {
+        const key = `${item.datetime}_${item.paytype}`;
+
+        if (!groupedData[key]) {
+            groupedData[key] = {
+                datetime: item.datetime,
+                paytype: item.paytype,
+                pay_summa: 0,
+                skidka_summa: 0,
+                qarzdorlik_summa: 0
+            };
+        }
+
+        groupedData[key].pay_summa += Number(item.pay_summa) || 0;
+        groupedData[key].skidka_summa += Number(item.skidka_summa) || 0;
+        groupedData[key].qarzdorlik_summa += Number(item.qarzdorlik_summa) || 0;
+    });
+
+    chekList.value = Object.values(groupedData);
+}
 
 const getAll = () => {
     const filial_id = Number(localStorage.getItem('user_filial'))
@@ -98,6 +124,7 @@ const getAll = () => {
 
 onMounted(() => {
     getAll()
+    calcSumma()
 })
 </script>
 

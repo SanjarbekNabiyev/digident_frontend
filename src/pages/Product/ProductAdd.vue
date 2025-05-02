@@ -8,6 +8,16 @@
                 <n-form-item :label="t('product_name')" path="name">
                     <n-input v-model:value="product.name" type="text" :placeholder="t('product_name')" clearable/>
                 </n-form-item>
+                <n-form-item :label="t('tek_bolim')" path="inspection_category_id">
+                    <n-select
+                        v-model:value="product.inspection_category_id" 
+                        :options="isnpectionCategoryList" 
+                        value-field="id" 
+                        label-field="name"  
+                        :placeholder="t('tek_bolim')" 
+                        filterable
+                    />
+                </n-form-item>
             </n-form>
             <div class="btn">
                 <n-button type="error" style="width: 150px;" @click="closePage">{{ $t('cencel_btn') }}</n-button>
@@ -36,6 +46,7 @@ const loading = ref(false);
 
 const product = ref({
     name: null,
+    inspection_category_id: null
 })
 
 const rules = {
@@ -45,6 +56,15 @@ const rules = {
         validator: (rule, value) => {
             if (value == null || value == '') {
                 return new Error(t('product_name_midd'))
+            }
+        }
+    },
+    inspection_category_id: {
+        required: true,
+        trigger: 'blur',
+        validator: (rule, value) => {
+            if (value == null || value == '') {
+                return new Error(t('ins_category_midd'))
             }
         }
     }
@@ -100,8 +120,20 @@ const getOneProduct = () => {
     }
 }
 
+const isnpectionCategoryList = ref([])
+const getInspectionCategory = () => {
+    axios.get('/inspection_category/all')
+    .then(function (res) {
+        isnpectionCategoryList.value = res.data
+    })
+    .catch(function (error) {
+        console.log(error.message);
+    })
+}
+
 onMounted(() => {
     getOneProduct()
+    getInspectionCategory()
 })
 
 </script>

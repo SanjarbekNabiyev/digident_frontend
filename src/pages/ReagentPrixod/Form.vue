@@ -54,7 +54,7 @@ const columns = [
     }
   },
   {
-    title: t('xodim_fio'),
+    title: t('oluvchi'),
     key: 'xodim'
   },
   // {

@@ -95,6 +95,7 @@ const uz = {
     "delete_btn": "O'chirish",
     "confir_btn": "Tasdiqlash",
     "template_btn": "Shablon",
+    "qora_list": "Qora ro'yxat",
 
     // Data table variables
     "data": 'Vaqti',
@@ -236,7 +237,21 @@ const uz = {
     "update_image": "Rasmni o'zgartirish",
     "upload_image": "Rasm yuklash uchun bosing",
     "impossible": "Mumkin emas!",
-
+    "print": "Chop etish",
+    "get_product": "Olingan maxsulotlar",
+    "give_product": "Berilgan maxsulotlar",
+    "oluvchi": "Oluvchi",
+    "beruvchi": "Beruvchi",
+    "maxsulot_olish": "Maxsulot olish",
+    "maxsulot_berish": "Maxsulot berish",
+    "comment_whrite": "Izoh yozish",
+    "analitic": "Analitika",
+    "labaratory": "Laboratoriya",
+    "maxsulot_aylanma": "Maxsulot aylanmasi",
+    "selected_teeth": "Belgilangan tishlar",
+    "xona_band": "Bu vaqt xona band",
+    "confir_btn": "Tasdiqlash",
+    "inspection_time": "Muolaja davomiyligi",
 };
 
 export { uz };

@@ -9,7 +9,7 @@ const router = createRouter({
       redirect: '/home',
       component: () => import('../pages/Layouts/Sidebar.vue'),
       children:[
-        //Xisobot Form page
+        //Home page
         {
           path: '/home',
           name: 'Home',
@@ -219,6 +219,12 @@ const router = createRouter({
           name: 'ProductAdd',
           component: () => import('../pages/Product/ProductAdd.vue')
         },
+        //Reagent Form page
+        {
+          path: '/reagent',
+          name: 'Reagent',
+          component: () => import('../pages/Reagent/Form.vue')
+        },
         // Reagent Prixod Page
         {
           path: '/reagent_prixod_page',
@@ -248,7 +254,19 @@ const router = createRouter({
           path: '/filial',
           name: 'Filial',
           component: () => import('../pages/Filial/Form.vue')
-        }
+        },
+        //Labaratoriya Form page
+        {
+          path: '/labaratoriya',
+          name: 'Labaratoriya',
+          component: () => import('../pages/Labaratoriya/Form.vue')
+        },
+        //Labaratoriya Add Form page
+        {
+          path: '/labaratoriya_add',
+          name: 'LabaratoriyaAdd',
+          component: () => import('../pages/Labaratoriya/Create.vue')
+        },
       ]
     },
     // Login page
@@ -394,6 +412,24 @@ const router = createRouter({
       path: '/doctor_chek_print',
       name: 'DoctorChekPrint',
       component: () => import('../pages/Print/DoctorChek.vue')
+    },
+    // Reagent Prixod Print page
+    {
+      path: '/reagent_prixod_print',
+      name: 'ReagentPrixodPrint',
+      component: () => import('../pages/ReagentPrixod/Print.vue')
+    },
+    // Reagent Rasxod Print page
+    {
+      path: '/reagent_rasxod_print',
+      name: 'ReagentRasxodPrint',
+      component: () => import('../pages/ReagentRasxod/Print.vue')
+    },
+    // Labaratoriya Print page
+    {
+      path: '/labaratory_print',
+      name: 'LabaratoryPrint',
+      component: () => import('../pages/Labaratoriya/Print.vue')
     },
   ]
 })

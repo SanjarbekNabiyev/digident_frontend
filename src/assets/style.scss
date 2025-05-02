@@ -150,7 +150,6 @@ body {
 .n-form-item-label__text{
     font-size: 15px !important;
 }
-
 .n-data-table-td.n-data-table-td--last-col{
     display: flex !important;
     gap: 10px !important;
@@ -196,7 +195,7 @@ body {
         background-color: #ffffff !important;
     }
 }
-.birthday, .texnik{
+.birthday, .texnik, .orders{
     .n-data-table .n-data-table-thead .n-data-table-th{
         background-color: #00007D !important;
     }
@@ -221,3 +220,16 @@ body {
         background-color: #ffffff !important;
     }
 }
+.cont .n-tabs-tab{
+    background-color: #eeeeee !important;
+    // color: #ffffff !important;
+}
+.cont .n-tabs-tab--active {
+    background-color: #D6EAFF !important;
+}
+// .regModal, .n-card > .n-card-header {
+//     padding: 15px 30px !important;
+// }
+// .regModal, .n-card > .n-card__content {
+//     padding: 0px 30px !important;
+// }

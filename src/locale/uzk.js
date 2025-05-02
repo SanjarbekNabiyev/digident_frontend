@@ -92,6 +92,7 @@ const uzk = {
     "delete_btn": "Ўчириш",
     "confir_btn": "Тасдиқлаш",
     "template_btn": "Шаблон",
+    "qora_list": "Қора рўйхат",
 
     // Data table variables
     "data": 'Вақти',
@@ -233,6 +234,21 @@ const uzk = {
     "update_image": "Расмни ўзгартириш",
     "upload_image": "Расм юклаш учун босинг",
     "impossible": "Мумкин эмас!",
+    "print": "Чоп этиш",
+    "get_product": "Олинган махсулотлар",
+    "give_product": "Берилган махсулотлар",
+    "oluvchi": "Олувчи",
+    "beruvchi": "Берувчи",
+    "maxsulot_olish": "Махсулот олиш",
+    "maxsulot_berish": "Махсулот бериш",
+    "comment_whrite": "Изоҳ ёзиш",
+    "analitic": "Аналитика",
+    "labaratory": "Лаборатория",
+    "maxsulot_aylanma": "Махсулот айланмаcи",
+    "selected_teeth": "Белгиланган тишлар",
+    "xona_band": "Бу вақтда хона банд",
+    "confir_btn": "Тасдиқлаш",
+    "inspection_time": "Муолажа давомийлиги",
 };
 
 export { uzk };

@@ -2,43 +2,43 @@
     <div class="container">
         <div class="container_header">
             <div class="header_btn">
-                <n-button type="info" @click="registrationAdd">
-                    <n-icon size="18">
-                        <PlusCircle />
-                    </n-icon><span style="padding-left: 5px; font-size: 16px; font-weight: 500;">{{ $t('add_btn') }}</span>
+                <n-button strong type="info" @click="kassaOrderAdd">
+                    <n-icon size="18"><PlusCircle /></n-icon>
+                    <span style="padding-left: 5px; font-size: 16px; font-weight: 500;">{{ $t('add_btn') }}</span>
                 </n-button>
             </div>
             <div class="header_search">
-                <input class="search" :placeholder="t('search')" v-model="searchText" type="search" @change="searchXona()" />
+                <input class="search" :placeholder="t('search')" v-model="searchText" type="search"
+                    @change="searchKassaOrder()" />
                 <span class="eye"><n-icon size="23" color="#cdcdcd">
                         <SearchRound></SearchRound>
                     </n-icon></span>
             </div>
         </div>
         <div class="content">
-            <n-data-table :pagination="paginationReactive" :columns="columns" :data="xodimList" :row-props="rowProps"
-                :max-height="750" striped />
+            <n-data-table :pagination="paginationReactive" :columns="columns" :data="bemorList" :row-props="rowProps" striped />
         </div>
     </div>
-
 </template>
 
 <script setup>
+import axios from 'axios';
 import { h, ref, reactive, onMounted, inject, defineProps } from 'vue'
 import { useMessage, useNotification, NButton, NIcon, NText, useDialog } from 'naive-ui'
 import { SearchRound } from '@vicons/material'
+import { Eye } from "@vicons/ionicons5"
 import { PlusCircle, TrashAltRegular } from '@vicons/fa'
 import { useRouter } from "vue-router";
-import axios from 'axios';
 import { I18nD, useI18n } from "vue-i18n";
 const { t, locale } = useI18n()
 const dayJS = inject('dayJS')
 const dialog = useDialog()
+const message = useMessage()
+const notification = useNotification()
 const router = useRouter()
 const searchText = ref(null)
-const xodimList = ref([])
-const addedModal = ref(false)
-const xonaId = ref(null)
+const bemorList = ref([])
+const kassaorderId = ref(null)
 
 const columns = [
     {
@@ -54,113 +54,120 @@ const columns = [
         }
     },
     {
-        title: t('beruvchi'),
-        key: 'xodim'
+        title: t('bemor_fio'),
+        key: 'bemor_name',
     },
-    // {
-    //   title: 'Текширув',
-    //   key: 'inspection_name'
-    // },
-    // {
-    //   title: 'Сумма',
-    //   key: 'summa'
-    // },
     {
-      title: '',
-      key: "action",
-      width: 60,
-      render(row) {
-        return [
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'error',
-              onClick: (e) => {
-                e.stopPropagation();
-                dialog.info({
-                    title: t('warning'),
-                    content: t('delete_info'),
-                    positiveText: t('delete_btn'),
-                    negativeText: t('cencel_btn'),
-                    onPositiveClick: () => {
-                        axios.post('/reagent_rasxod/delete', row)
-                        .then((res)=> {
-                            getReagent()
-                        })
-                        .catch(function (error) {
-                            console.log(error.message);
-                        })
+        title: t("doctor"),
+        key: 'username',
+    },
+    {
+        title: t('texnik'),
+        key: 'texnik_name',
+    },
+    {
+        title: t('comment'),
+        key: 'comment',
+    },
+    {
+        title: '',
+        key: "action",
+        width: 50,
+        render(row) {
+            return [
+                h(
+                    NButton,
+                    {
+                        size: 'small',
+                        type: 'error',
+                        onClick: (e) => {
+                            e.stopPropagation();
+                            dialog.info({
+                                title: t('warning'),
+                                content: t('delete_info'),
+                                positiveText: t('delete_btn'),
+                                negativeText: t('cencel_btn'),
+                                onPositiveClick: () => {
+                                    axios.post('/labaratory/delete', row)
+                                        .then((res) => {
+                                            if (res.success) {
+                                                getAllLabaratory()
+                                            }
+                                        })
+                                        .catch(function (error) {
+                                            console.log(error.message);
+                                        })
+                                },
+                                onNegativeClick: () => {
+                                }
+                            })
+                        }
                     },
-                    onNegativeClick: () => {
+                    {
+                        icon: () =>
+                            h(NIcon, {
+                                component: TrashAltRegular
+                            })
                     }
-                })
-              }
-            },
-            {
-              icon: () =>
-                h(NIcon, {
-                  component: TrashAltRegular
-                })
-            }
-          ),
-        ]
-      }
+                ),
+            ]
+        }
     }
 ]
+
+const kassaOrderAdd = () => {
+    router.push({ name: 'LabaratoriyaAdd' })
+}
 
 const rowProps = (row) => {
     return {
         style: "cursor: pointer;",
         onClick: () => {
-            router.push({ name: "ReagentRasxodCreate", query: { id: row.id } })
+            router.push({ name: "LabaratoriyaAdd", query: { id: row.id } })
         }
     };
 }
 
-const registrationAdd = () => {
-    router.push({ name: "ReagentRasxodCreate" });
-}
-
-const closeModal = () => {
-    addedModal.value = false;
-    getReagent()
-}
-
-// Get all Reagent rasxod api 
-const getReagent = () => {
-    axios.get('/reagent_rasxod/all')
+const getAllLabaratory = () => {
+    axios.get('/labaratory/all')
         .then(function (res) {
-            xodimList.value = res.data
+            bemorList.value = res.data
         })
         .catch(function (error) {
             console.log(error.message);
         })
 }
 
-// Xona qidiruv
-const searchXona = () => {
+// Kassa Order qidiruv api
+const searchKassaOrder = () => {
     if (searchText.value.length > 0) {
         let data = { text: searchText.value }
-        axios.post('/reagent_rasxod/search', data)
+        axios.post('/kassa-order/search', data)
             .then(function (res) {
-                xodimList.value = []
+                bemorList.value = []
                 if (res.success) {
-                    xodimList.value = res.data
+                    for (let i = 0; i < res.data.length; i++) {
+                        if (res.data[i].type == 1) {
+                            res.data[i].type = 'Кирим'
+                        } else {
+                            res.data[i].type = 'Чиқим'
+                        }
+                        bemorList.value.push(res.data[i])
+                    }
                 } else {
                     message.error('Бундай маълумот йўқ')
                 }
             })
             .catch(function (error) {
-                xodimList.value = []
+                bemorList.value = []
             })
     } else {
-        getReagent()
+        getAllLabaratory()
     }
 }
 
 onMounted(() => {
-    getReagent()
+    getAllLabaratory()
 })
 
 const paginationReactive = reactive({
@@ -176,6 +183,7 @@ const paginationReactive = reactive({
         paginationReactive.page = 1;
     }
 });
+
 </script>
 
 <style scoped lang="scss">

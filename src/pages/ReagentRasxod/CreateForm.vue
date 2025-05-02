@@ -1,7 +1,7 @@
 <template>
     <div class="prixod">
         <div class="prixod_head">
-            <div class="title">{{ $t('reagent_rasxod') }}</div>
+            <div class="title">{{ $t('give_product') }}</div>
             <div class="exit">
                 <n-icon size="40" color="red" @click="exit" style="cursor: pointer">
                     <CloseSquareFilled />
@@ -15,10 +15,10 @@
                 <n-form-item :label="t('data')">
                     <n-date-picker v-model:value="prixod.datetime" type="date" size="large" disabled />
                 </n-form-item>
-                <n-form-item :label="t('xodim')" path="user_id">
+                <n-form-item :label="t('beruvchi')" path="user_id">
                     <n-select 
                         v-model:value="prixod.user_id" 
-                        :options="poatavshikList" 
+                        :options="postavshikList" 
                         filterable 
                         label-field="full_name" 
                         value-field="id" 
@@ -36,25 +36,36 @@
         <div class="prixod_info">
             <table border="#000" style="width: 100%;">
                 <thead>
-                    <th style="width: 5%;">№</th>
-                    <th style="width: 30%;">{{ $t('product_name') }}</th>
-                    <th style="width: 20%;">{{ $t('count') }}</th>
-                    <th style="width: 30%;">{{ $t('qoldiq') }}</th>
-                    <th style="width: 3%;"></th>
+                    <tr>
+                        <th style="width: 5%;">№</th>
+                        <th style="width: 22%;">{{ $t('tek_bolim') }}</th>
+                        <th style="width: 22%;">{{ $t('product_name') }}</th>
+                        <th style="width: 22%;">{{ $t('count') }}</th>
+                        <!-- <th style="width: 15%;">{{ $t('summa') }}</th> -->
+                        <th style="width: 22%;">{{ $t('qoldiq') }}</th>
+                        <th style="width: 5%;"></th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, index) in prixod.reagent_rasxod_tables" :key="index">
                         <th>{{ index + 1 }}</th>
-                        <td><n-select v-model:value="item.product_id" :options="productList" @update:value="chooseProduct(item)" filterable label-field="name" value-field="id" :placeholder="t('product_name')" size="large"/></td>
+                        <td><n-select v-model:value="item.inspection_category_id" :options="isnpectionCategoryList" @update:value="chooseTekBolim(item)" filterable label-field="name" value-field="id" :placeholder="t('tek_bolim')" size="large"/></td>
+                        <td><n-select v-model:value="item.product_id" :options="item.productList" @update:value="chooseProduct(item)" filterable label-field="name" value-field="id" :placeholder="t('product_name')" size="large"/></td>
                         <td><n-input-number v-model:value="item.count" size="large" @update:value="editProductCount(item)" :status="item.count > item.qoldiq ? 'error': 'info'" :show-button="false"/></td>
                         <td><n-input-number v-model:value="item.qoldiq" size="large" :show-button="false" :status="item.qoldiq <= 0 ? 'error' : 'info'"  readonly/></td>
-                        <th style="width: 50px; padding: 5px;"><div class="delete" @click="deleteRow(item, index)"><n-icon size="25" color="red"><DeleteFilled /></n-icon></div></th>
+                        <td style="width: 50px; padding: 5px;"><div class="delete" @click="deleteRow(item, index)"><n-icon size="25" color="red"><DeleteFilled /></n-icon></div></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="prixod_btn">
             <div class="button">
+                <n-button type="warning" size="large" style="width: 180px;" @click="printBtn">
+                    <n-icon size="20">
+                        <PrinterOutlined />
+                    </n-icon>
+                    {{ $t('print') }}
+                </n-button>
                 <n-button type="info" size="large" style="width: 180px;" @click="addRow">
                     <n-icon size="20">
                         <PlusOutlined />
@@ -84,7 +95,7 @@ import axios from 'axios';
 import { ref, reactive, onMounted, inject } from 'vue'
 import { useRouter, useRoute } from "vue-router";
 import { useMessage, useNotification, useDialog } from 'naive-ui'
-import { CloseSquareFilled, PlusOutlined, DeleteFilled } from '@vicons/antd'
+import { CloseSquareFilled, PlusOutlined, DeleteFilled, PrinterOutlined } from '@vicons/antd'
 import { Close } from '@vicons/ionicons5'
 import { SaveAltRound } from '@vicons/material'
 import { useSummaFormat, useParsenumber, useFormatnumber, usePhoneFormat } from '../../composible/NumberFormat';
@@ -96,7 +107,7 @@ const message = useMessage()
 const router = useRouter()
 const route = useRoute()
 const formRef = ref(null)
-const poatavshikList = ref([])
+const postavshikList = ref([])
 const productList = ref([])
 const inspectionList = ref([])
 const activeUser = Number(localStorage.getItem('user_role_id'))
@@ -111,13 +122,13 @@ const prixod = ref({
     reagent_rasxod_tables: []
 })
 
-if (activeUser == 1 || activeUser == 2) {
-    prixod.value.user_id = Number(localStorage.getItem('user_id'))
-    disabledSelect.value = false
-}else{
-    prixod.value.user_id = Number(localStorage.getItem('user_id'))
-    disabledSelect.value = true
-}
+// if (activeUser == 1 || activeUser == 2) {
+//     prixod.value.user_id = Number(localStorage.getItem('user_id'))
+//     disabledSelect.value = false
+// }else{
+//     prixod.value.user_id = Number(localStorage.getItem('user_id'))
+//     disabledSelect.value = true
+// }
 
 const rules = {
     user_id: {
@@ -145,12 +156,45 @@ const exit = () => {
     })
 }
 
+const printBtn = async () => {
+    try {
+        const result = await formRef.value?.validate();
+        if (prixod.value.reagent_rasxod_tables.length > 0) {
+            const selectedPostavshik = postavshikList.value.find(
+                (item) => item.id === prixod.value.user_id
+            );
+    
+            if (selectedPostavshik) {
+                prixod.value.postavchik_name = selectedPostavshik.full_name;
+            }
+    
+            prixod.value.reagent_rasxod_tables.forEach((item) => {
+                const foundProduct = productList.value.find((product) => product.id === item.product_id);
+                if (foundProduct) {
+                    item.product_name = foundProduct.name;
+                }
+            });
+    
+            localStorage.setItem('reagentRasxod', JSON.stringify(prixod.value));
+            const rout = router.resolve({
+              path: "/reagent_rasxod_print"
+            });
+            window.open(rout.href, "_blank");
+            saveDoc()
+        }
+    } catch (err) {
+        console.error(err.message);
+    }
+}
+
 const addRow = () => {
     prixod.value.reagent_rasxod_tables.push({
+        inspection_category_id: null,
         product_id: null,
         count: 0,
         qoldiq: 0,
         price: 0,
+        productList: []
     })
 }
 const deleteRow = (item, index) => {
@@ -197,6 +241,18 @@ const saveDoc = async () => {
     }
 }
 
+const chooseTekBolim = (e) => {
+    axios.get('/product/filter_tekbolim_product/' + e.inspection_category_id)
+    .then(function (res) {
+        if (res.success) {
+            e.productList = res.data
+        }
+    })
+    .catch(function (error) {
+        console.log(error.message);
+    })        
+}
+
 const chooseProduct = (e) => {
     e.count = 0;
     e.qoldiq = 0;
@@ -221,33 +277,27 @@ const editProductCount = (e) => {
     }
 }
 
+const filialId = ref(Number(localStorage.getItem('user_filial')));
 // Get All Api
 const getAllKontragent = () => {
-    axios.get('/user/all')
+    axios.get('/user/shifokor/' + filialId.value)
         .then(function (res) {
-            poatavshikList.value = res.data
+            postavshikList.value = res.data
         })
         .catch(function (error) {
             console.log(error.message);
         })
 }
-const getAllProduct = () => {
-    axios.get('/product/all')
-        .then(function (res) {
-            productList.value = res.data
-        })
-        .catch(function (error) {
-            console.log(error.message);
-        })
-}
-const getAllInspection = () => {
-    axios.get('/inspection/all')
-        .then(function (res) {
-            inspectionList.value = res.data
-        })
-        .catch(function (error) {
-            console.log(error.message);
-        })
+
+const isnpectionCategoryList = ref([])
+const getInspectionCategory = () => {
+    axios.get('/inspection_category/all')
+    .then(function (res) {
+        isnpectionCategoryList.value = res.data
+    })
+    .catch(function (error) {
+        console.log(error.message);
+    })
 }
 
 // Get One Api 
@@ -262,6 +312,7 @@ const getOnePrixod = () => {
             for (let i = 0; i < res.data.reagent_rasxod_tables.length; i++) {
                 res.data.reagent_rasxod_tables[i].count = Number(res.data.reagent_rasxod_tables[i].count)
                 res.data.reagent_rasxod_tables[i].qoldiq = Number(res.data.reagent_rasxod_tables[i].qoldiq)
+                res.data.reagent_rasxod_tables[i].productList = res.data.reagent_rasxod_tables[i].inspection_category.product
 
                 prixod.value.reagent_rasxod_tables.push(res.data.reagent_rasxod_tables[i])
             }
@@ -274,9 +325,8 @@ const getOnePrixod = () => {
 
 onMounted(() => {
     getAllKontragent()
-    getAllProduct()
     getOnePrixod()
-    getAllInspection()
+    getInspectionCategory()
 })
 
 </script>

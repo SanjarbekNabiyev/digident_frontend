@@ -87,7 +87,7 @@ const onClick = (event) => {
 
 const getBemor = () => {
     show.value = true
-    axios.get('/bemor/ten_day')
+    axios.get('/registration/ten_day')
     .then(function (res) {
         if(res.success){
             for (let i = 0; i < res.data.length; i++) {
