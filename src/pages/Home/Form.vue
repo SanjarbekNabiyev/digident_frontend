@@ -96,19 +96,9 @@
                                         :class="['cell', { 'today-column': isToday(day.date) }]"
                                         @click="openQueueModal(day.date, hour)">
                                         <div v-if="formattedTable[dayJS(day.date).format('DD.MM')]?.[hour]?.show"class="disegn">
-                                            <!-- <div class="disegn_addBtn">
-                                                <n-icon size="20" color="#60DAB1">
-                                                    <PlusRound />
-                                                </n-icon>
-                                            </div> -->
-                                            <div class="disegn_wrapper"
-                                                v-for="(item, index) in formattedTable[dayJS(day.date).format('DD.MM')][hour].data"
-                                                :key="item.id" @click="enterRegistration(day.date, hour, item)"
-                                                :style="{ '--index': index + 1 }">
-                                                <div class="disegn_wrapper_head"
-                                                    :style="{ 'background': item.color }">
-                                                    <p style="text-align: left; padding-left: 5px;">{{
-                                                        item.bemor.full_name }}</p>
+                                            <div class="disegn_wrapper" v-for="(item, index) in formattedTable[dayJS(day.date).format('DD.MM')][hour].data" :key="item.id" @click="enterRegistration(day.date, hour, item)" :style="{ '--index': index + 1 }">
+                                                <div class="disegn_wrapper_head" :style="{ 'background': item.color }">
+                                                    <p style="text-align: left; padding-left: 5px;">{{ item.bemor.full_name }}</p>
                                                     <div>
                                                         <n-popover placement="right" trigger="click"
                                                             style="display: flex; justify-content: center; align-items: center; ">
@@ -152,6 +142,11 @@
                                                 </div>
                                                 <p class="text">{{ item.comment }}</p>
                                             </div>
+                                        </div>
+                                        <div class="addBtn">
+                                            <n-icon size="25" color="#60DAB1">
+                                                <PlusRound />
+                                            </n-icon>
                                         </div>
                                     </td>
                                 </tr>
@@ -642,19 +637,8 @@ watchEffect(() => {
     display: flex;
     flex-direction: column;
     position: relative;
+    // max-height: 120px; 
 
-    &_addBtn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #adf8cf;
-        position: absolute;
-        border-radius: 0 0 0 50%;
-        top: -15px;
-        right: -10px;
-        z-index: 999999;
-        pointer-events: auto;
-    }
     &_wrapper {
         border-radius: 10px;
         color: #fff;
@@ -687,8 +671,8 @@ watchEffect(() => {
             top: 0;
         }
 
-        &:nth-child(n + 2) {
-            z-index: calc(100 - var(--index));
+        &:nth-child(n) {
+            z-index: calc(var(--index));
             top: calc((var(--index) - 1) * 35px);
         }
 
@@ -698,6 +682,36 @@ watchEffect(() => {
             // top: 0;
         }
     }
+}
+
+.cell {
+  position: relative;
+  min-height: 120px; // har bir soat katak balandligi
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #eee;
+
+  &:hover .addBtn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.addBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #adf8cf;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 5;
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
 }
 
 .dots {
